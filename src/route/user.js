@@ -4,8 +4,8 @@ const mysql = require('../config')
 const jwt = require('jsonwebtoken')
 const bcrypt=require('bcryptjs')
 
-const {auth,superadmin,admin,director, head, operator, alluser, superadmint, admint, directort, headt, operatort, allusert } = require('../middleware')
-const {add,list} = require('../model/user')
+const {auth,superadmin} = require('../middleware')
+const {add,edit} = require('../model/user')
 
 /* LOGIN*/
 router.post('/login',(req,res)=>{
@@ -45,32 +45,11 @@ router.post('/login',(req,res)=>{
 })
 
 
-/* ADD USER */
-router.post('/add',auth,superadmin,(req,res)=>{
-    const {id_role,id_tenant, fullname, username, password} =req.body
-    const enc_pass = bcrypt.hashSync(password);
-    const created_on = new Date()
-    const updated_on = new Date()
-    const sql = `SELECT username from tbl_user WHERE username =?`
-    mysql.execute(sql, [username], (err,result1, field)=>{
-        if(result1 == ''){
-            mysql.execute(add,
-                [id_role,id_tenant,fullname, username, enc_pass,  created_on, updated_on],
-                (err,result,field)=>{
-                res.send({success:true,data:result})
-            })
-        
-        }else {
-            res.send({success:false, msg:'Username Does Exist'})
-        }
-    })
-})
-
 /* GET LIST USER */
 router.get('/:id_tenant',auth,(req, res)=>{
     const {id_role} = req.headers
     const {id_tenant} = req.params
-        if(id_role == "1") {
+    if(id_role == "1") {
             const sql = `SELECT * from tbl_user where id_tenant > 0 && id_role BETWEEN 1 AND 5`
             mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
                 res.send({success:true,data:result1})
@@ -100,7 +79,85 @@ router.get('/:id_tenant',auth,(req, res)=>{
                 res.send({success:true,data:result1})
             })
         }
+        
+    })
     
+/* ADD USER */
+router.post('/',auth,superadmin,(req,res)=>{
+    const {id_role,id_tenant, fullname, username, password} =req.body
+    const enc_pass = bcrypt.hashSync(password);
+    const created_on = new Date()
+    const updated_on = new Date()
+    const sql = `SELECT username from tbl_user WHERE username =?`
+    mysql.execute(sql, [username], (err,result1, field)=>{
+        if(result1 == ''){
+            mysql.execute(add,
+                [id_role,id_tenant,fullname, username, enc_pass,  created_on, updated_on],
+                (err,result,field)=>{
+                res.send({success:true,data:result})
+            })
+        
+        }else {
+            res.send({success:false, msg:'Username Does Exist'})
+        }
+    })
+
 })
 
+/* UPDATE USER */
+router.put('/:id',auth,(req,res)=>{
+    const {id_tenant, fullname,username,password} =req.body
+    const {id} = req.params
+    const {id_role}=req.headers
+    const enc_pass = bcrypt.hashSync(password)
+    const updated_on = new Date()
+    if(id_role == "1") {
+        const sql = `SELECT username from tbl_user WHERE username =?`
+        mysql.execute(sql, [username], (err,result1, field)=>{
+            if(result1 == ''){
+                mysql.execute(edit,
+                    [id_role, id_tenant, fullname,username,enc_pass,updated_on,id],(err,result,field)=>{
+                    res.send({
+                        success:true,
+                        msg:'Update Success',
+                        data:result
+                    })
+                })         
+            }else {
+                res.send({
+                    success:false, 
+                    msg:'Username Does Exist'
+                })
+            }
+        })
+    }
+    else if(id_role == "2") {
+        const sql = `SELECT username from tbl_user WHERE username =?`
+        mysql.execute(sql, [username], (err,result1, field)=>{
+            if(result1 == ''){
+                mysql.execute(edit,
+                    [id_role, id_tenant, fullname,username,enc_pass,updated_on,id],(err,result,field)=>{
+                    res.send({
+                        success:true,
+                        msg:'Update Success',
+                        data:result
+                    })
+                })          
+            }else {
+                res.send({
+                    success:false, 
+                    msg:'Username Does Exist'
+                })
+            }
+        })
+    }
+    else if (id_role == "3" || id_role == "4" || id_role == "5" ) {
+        res.send({
+            success:false, 
+            msg:"Access Denied"
+        })   
+    }
+
+   
+})
 module.exports =router
