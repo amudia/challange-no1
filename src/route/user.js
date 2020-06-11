@@ -4,8 +4,8 @@ const mysql = require('../config')
 const jwt = require('jsonwebtoken')
 const bcrypt=require('bcryptjs')
 
-// const {auth,admin,restaurant,customer} = require('../middleware')
-const {add} = require('../model/user')
+const {auth,superadmin,admin,director, head, operator, alluser, superadmint, admint, directort, headt, operatort, allusert } = require('../middleware')
+const {add,list} = require('../model/user')
 
 /* LOGIN*/
 router.post('/login',(req,res)=>{
@@ -43,9 +43,11 @@ router.post('/login',(req,res)=>{
         }
     })
 })
-/* REGISTER USER #ADMIN ACCESS */
-router.post('/add',(req,res)=>{
-    const {id_role, fullname, username, password} =req.body
+
+
+/* ADD USER */
+router.post('/add',auth,superadmin,(req,res)=>{
+    const {id_role,id_tenant, fullname, username, password} =req.body
     const enc_pass = bcrypt.hashSync(password);
     const created_on = new Date()
     const updated_on = new Date()
@@ -53,14 +55,52 @@ router.post('/add',(req,res)=>{
     mysql.execute(sql, [username], (err,result1, field)=>{
         if(result1 == ''){
             mysql.execute(add,
-                [id_role,fullname, username, enc_pass,  created_on, updated_on],
+                [id_role,id_tenant,fullname, username, enc_pass,  created_on, updated_on],
                 (err,result,field)=>{
                 res.send({success:true,data:result})
             })
         
         }else {
-            res.send({success:false, msg:'Email Does Exist'})
+            res.send({success:false, msg:'Username Does Exist'})
         }
     })
 })
+
+/* GET LIST USER */
+router.get('/:id_tenant',auth,(req, res)=>{
+    const {id_role} = req.headers
+    const {id_tenant} = req.params
+        if(id_role == "1") {
+            const sql = `SELECT * from tbl_user where id_tenant > 0 && id_role BETWEEN 1 AND 5`
+            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+                res.send({success:true,data:result1})
+            })
+        }
+        else if(id_role == "2"){
+            const sql = `SELECT * from tbl_user where id_tenant=? && id_role BETWEEN 2 AND 5 `
+            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+                res.send({success:true,data:result1})
+            })
+        }
+        else if(id_role == "3"){
+            const sql = `SELECT * from tbl_user where id_tenant=? && id_role BETWEEN 3 AND 5`
+            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+                res.send({success:true,data:result1})
+            })
+        }
+        else if(id_role == "4"){
+            const sql = `SELECT * from tbl_user where id_tenant=? && id_role BETWEEN 4 AND 5`
+            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+                res.send({success:true,data:result1})
+            })
+        }
+        else if (id_role == "5"){
+            const sql = `SELECT * from tbl_user where id_tenant=? && id_role = 5`
+            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+                res.send({success:true,data:result1})
+            })
+        }
+    
+})
+
 module.exports =router

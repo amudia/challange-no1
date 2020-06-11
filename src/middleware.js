@@ -39,7 +39,7 @@ const auth = (req,res,next)=>{
 //superadmin
 const superadmin = (req,res,next)=>{
     const {id_role} = req.headers
-    if(id_role == '1'|| id_role == '2'|| id_role == '3' || id_role == '4' || id_role == '5' 
+    if(id_role == '1' 
     ){
         next()
     }else{
@@ -50,7 +50,7 @@ const superadmin = (req,res,next)=>{
 //admin
 const admin = (req,res,next)=>{
     const {id_role} = req.headers
-    if(id_role == '2'|| id_role == '3' || id_role == '4' || id_role == '5'  ){
+    if(id_role == '2'|| id_role == '1' ){
         next()
     }else{
         res.send({success:false,msg:'Access Denied'})
@@ -60,7 +60,7 @@ const admin = (req,res,next)=>{
 //director
 const director = (req,res,next)=>{
     const {id_role} = req.headers
-    if(id_role == '3' || id_role == '4' || id_role == '5' ){
+    if(id_role == '3' || id_role == '1' || id_role == '2' ){
         next()
     }else{
         res.send({success:false,msg:'Access Denied'})
@@ -70,7 +70,7 @@ const director = (req,res,next)=>{
 //head
 const head = (req,res,next)=>{
     const {id_role} = req.headers
-    if(id_role == '4' || id_role == '5' ){
+    if(id_role == '4' || id_role == '1' || id_role == '2' || id_role == '3' ){
         next()
     }else{
         res.send({success:false,msg:'Access Denied'})
@@ -80,11 +80,80 @@ const head = (req,res,next)=>{
 //operator
 const operator = (req,res,next)=>{
     const {id_role} = req.headers
-    if(id_role == '5' ){
+    if(id_role == '5' || id_role == '1' || id_role == '2' || id_role == '3' || id_role == '4'){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+//alluser
+const alluser = (req,res,next)=>{
+    const {id_role} = req.headers
+    if(id_role == '5' || id_role == '1' || id_role == '2' || id_role == '3' || id_role == '4'){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+//===========================================================================
+//superadmin
+const superadmint = (req,res,next)=>{
+    const {id_tenant, id_role} = req.headers
+    if(id_tenant == '1' || id_tenant == '3' || id_tenant == '2' || id_tenant == '4' || id_role == '1'
+    ){
         next()
     }else{
         res.send({success:false,msg:'Access Denied'})
     }
 }
 
-module.exports={auth, superadmin, admin, head, operator}
+//admin
+const admint = (req,res,next)=>{
+    const {id_tenant, id_role} = req.headers
+    if(id_tenant == '2'|| id_tenant == '1' || id_role == '1'|| id_role == '2' ){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+
+//director
+const directort = (req,res,next)=>{
+    const {id_tenant} = req.headers
+    if(id_tenant == '3' || id_tenant == '1' || id_tenant == '2' ){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+
+//head
+const headt = (req,res,next)=>{
+    const {id_tenant} = req.headers
+    if(id_tenant == '4' || id_tenant == '1' || id_tenant == '2' || id_tenant == '3' ){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+
+//operator
+const operatort = (req,res,next)=>{
+    const {id_tenant} = req.headers
+    if(id_tenant == '5' || id_tenant == '1' || id_tenant == '2' || id_tenant == '3' || id_tenant == '4'){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+//alluser
+const allusert = (req,res,next)=>{
+    const {id_tenant} = req.headers
+    if(id_tenant == '5' || id_tenant == '1' || id_tenant == '2' || id_tenant == '3' || id_tenant == '4'){
+        next()
+    }else{
+        res.send({success:false,msg:'Access Denied'})
+    }
+}
+
+module.exports={auth, superadmin, admin, director, head, operator, alluser,superadmint, admint, directort, headt, operatort, allusert}
