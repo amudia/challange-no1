@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const mysql = require('./config/config')
+const mysql = require('./config')
 const auth = (req,res,next)=>{
     if(
         req.headers['authorization'] && 
@@ -7,7 +7,7 @@ const auth = (req,res,next)=>{
         ){
             const jwt_token = req.headers['authorization'].substr(7)
             req.headers.auth_token=jwt_token
-            mysql.execute('SELECT token FROM _token where token=? and is_revoked=1',[jwt_token],
+            mysql.execute('SELECT token FROM revoked_token where token=? and is_revoked=1',[jwt_token],
             (err,result, field)=>{
                 if(err){
                     res.send({
