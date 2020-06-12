@@ -39,7 +39,7 @@ const auth = (req,res,next)=>{
 //superadmin
 const superadmin = (req,res,next)=>{
     const {id_role} = req.headers
-    if(id_role == '1' 
+    if(id_role == '1'  ||id_role == '2'  ||id_role == '3'  ||id_role == '4'  ||id_role == '5'
     ){
         next()
     }else{

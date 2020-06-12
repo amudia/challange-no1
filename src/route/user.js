@@ -4,7 +4,7 @@ const mysql = require('../config')
 const jwt = require('jsonwebtoken')
 const bcrypt=require('bcryptjs')
 
-const {auth,superadmin} = require('../middleware')
+const {auth,superadmin, admin, director, head, operator} = require('../middleware')
 const {add,edit} = require('../model/user')
 
 /* LOGIN*/
@@ -15,8 +15,9 @@ router.post('/login',(req,res)=>{
         if(result.length>0){
             if(bcrypt.compareSync(password,result[0].password)){
                 const roles = result[0].id_role
-                const id = result[0].id_user
-                const auth = jwt.sign({username, id, roles},process.env.APP_KEY)
+                const iduser = result[0].id_user
+                const id = result[0].id_tenant
+                const auth = jwt.sign({username, iduser, roles, id},process.env.APP_KEY)
                 const token = auth
                 const is_revoked = 0
                 const created_on = new Date()
@@ -46,36 +47,36 @@ router.post('/login',(req,res)=>{
 
 
 /* GET LIST USER */
-router.get('/:id_tenant',auth,(req, res)=>{
+router.get('/:id',auth,superadmin,(req, res)=>{
     const {id_role} = req.headers
-    const {id_tenant} = req.params
-    if(id_role == "1") {
-            const sql = `SELECT * from tbl_user where id_tenant > 0 && id_role BETWEEN 1 AND 5`
-            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+    const {id} = req.params
+    if(id_role == 1) {
+            const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant > 0 && tbl_user.id_role BETWEEN 1 AND 5`
+            mysql.execute(sql,[id],(err1,result1,field1)=>{
                 res.send({success:true,data:result1})
             })
         }
-        else if(id_role == "2"){
-            const sql = `SELECT * from tbl_user where id_tenant=? && id_role BETWEEN 2 AND 5 `
-            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+        else if(id_role == 2){
+            const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 2 AND 5 `
+            mysql.execute(sql,[id],(err1,result1,field1)=>{
                 res.send({success:true,data:result1})
             })
         }
-        else if(id_role == "3"){
-            const sql = `SELECT * from tbl_user where id_tenant=? && id_role BETWEEN 3 AND 5`
-            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+        else if(id_role == 3){
+            const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =1 && tbl_user.id_role BETWEEN 3 AND 5`
+            mysql.execute(sql,[id],(err1,result1,field1)=>{
                 res.send({success:true,data:result1})
             })
         }
-        else if(id_role == "4"){
-            const sql = `SELECT * from tbl_user where id_tenant=? && id_role BETWEEN 4 AND 5`
-            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+        else if(id_role == 4){
+            const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =1 && tbl_user.id_role BETWEEN 4 AND 5`
+            mysql.execute(sql,[id],(err1,result1,field1)=>{
                 res.send({success:true,data:result1})
             })
         }
-        else if (id_role == "5"){
-            const sql = `SELECT * from tbl_user where id_tenant=? && id_role = 5`
-            mysql.execute(sql,[id_tenant],(err1,result1,field1)=>{
+        else if (id_role == 5){
+            const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =1 && tbl_user.id_role = 5`
+            mysql.execute(sql,[id],(err1,result1,field1)=>{
                 res.send({success:true,data:result1})
             })
         }
