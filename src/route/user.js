@@ -61,29 +61,29 @@ const {add,edit} = require('../model/user')
     })
 
     /* GET LIST USER */
-    router.get('/:id',auth,superadmin,(req, res)=>{
+    router.get('/:id',auth,(req, res)=>{
         const {id_role} = req.headers
         const {id} = req.params
         if(id_role == 1) {
-                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant > 0 && tbl_user.id_role BETWEEN 1 AND 5`
+                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user,tbl_user.username, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant > 0 && tbl_user.id_role BETWEEN 1 AND 5`
                 mysql.execute(sql,[id],(err1,result1,field1)=>{
                     res.send({success:true,data:result1})
                 })
             }
             else if(id_role == 2){
-                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 2 AND 5 `
+                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user,tbl_user.username, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 2 AND 5 `
                 mysql.execute(sql,[id],(err1,result1,field1)=>{
                     res.send({success:true,data:result1})
                 })
             }
             else if(id_role == 3){
-                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 3 AND 5`
+                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user,tbl_user.username, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 3 AND 5`
                 mysql.execute(sql,[id],(err1,result1,field1)=>{
                     res.send({success:true,data:result1})
                 })
             }
             else if(id_role == 4){
-                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 4 AND 5`
+                const sql = `SELECT tbl_role.id_role, tbl_role.name_role, tbl_tenant.id_tenant, tbl_tenant.name_tenant, tbl_user.id_user,tbl_user.username, tbl_user.fullname, tbl_user.created_on, tbl_user.updated_on FROM tbl_user INNER JOIN tbl_role ON tbl_user.id_role=tbl_role.id_role INNER JOIN tbl_tenant ON tbl_user.id_tenant=tbl_tenant.id_tenant WHERE tbl_user.id_tenant =? && tbl_user.id_role BETWEEN 4 AND 5`
                 mysql.execute(sql,[id],(err1,result1,field1)=>{
                     res.send({success:true,data:result1})
                 })
@@ -141,10 +141,15 @@ const {add,edit} = require('../model/user')
                 [id_tenant, fullname,updated_on, id],
                 (err,result,field) => {
                     console.log(err)
-                res.send({success:true,data:result})
+                res.send(
+                    {   
+                        status:200,
+                        success:true,
+                        data:result
+                    })
             })
         }
-        else if (id_role == "3" || id_role == "4" || id_role == "5" ) {
+        else if (id_role == 3 || id_role == 4 || id_role == 5 ) {
             res.send({
                 success:false, 
                 msg:"Access Denied"
@@ -155,25 +160,37 @@ const {add,edit} = require('../model/user')
     })
     
     /* ADD USER */
-    router.post('/',auth,superadmin,(req,res)=>{
+    router.post('/add',auth,admin,(req,res)=>{
         const {id_role,id_tenant, fullname, username, password} =req.body
         const enc_pass = bcrypt.hashSync(password);
         const created_on = new Date()
         const updated_on = new Date()
-        const sql = `SELECT username from tbl_user WHERE username =?`
-        mysql.execute(sql, [username], (err,result1, field)=>{
-            if(result1 == ''){
-                mysql.execute(add,
-                    [id_role,id_tenant,fullname, username, enc_pass,  created_on, updated_on],
-                    (err,result,field)=>{
-                    res.send({success:true,data:result})
-                })
-            
-            }else {
-                res.send({success:false, msg:'Username Does Exist'})
-            }
-        })
+            const sql = `SELECT username from tbl_user WHERE username =?`
+            mysql.execute(sql, [username], (err,result1, field)=>{
+                if(result1 == ''){
+                    const sql1 = 'INSERT INTO tbl_user (id_role,id_tenant,fullname,username,password,created_on,updated_on) VALUES(?,?,?,?,?,?,?)'
+                    mysql.execute(sql1,
+                        [id_role,id_tenant,fullname, username, enc_pass,  created_on, updated_on],
+                        (err,result,field)=>{
+                        res.send({success:true,data:result})
+                    })
+                
+                }else {
+                    res.send({success:false, msg:'Username Does Exist'})
+                }
+            })
+       
+       
         
     })
-
+  
+    /*DELETE DATA */
+    router.delete('/:id',auth,admin,(req,res)=>{
+        const {id} = req.params
+        const sql = 'DELETE FROM tbl_user where id_user=?'
+        mysql.execute(sql,
+            [id],(err,result,field)=>{
+                res.send({succes:true,data:result})
+            })
+    })
 module.exports =router
